@@ -7,5 +7,3 @@ build/
 .DS_Store
 coverage/
 .pnpm-store/
-ecosystem.config.cjs
-*.tsbuildinfo
