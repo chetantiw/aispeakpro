@@ -46,6 +46,9 @@ export async function getProfile(userId: string): Promise<Profile> {
     goals: (row.goals as unknown as string[]) ?? [],
     minutesUsedToday,
     freeDailyMinutes: env.FREE_DAILY_MINUTES,
+    onboarded: row.onboarded,
+    learningGoal: row.learning_goal,
+    dailyGoalMinutes: row.daily_goal_minutes,
   };
 }
 

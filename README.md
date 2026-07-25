@@ -74,8 +74,3 @@ pnpm --filter @aispeakpro/api worker   # run the async feedback worker (needs Re
 Real-time STT/TTS media plane (LiveKit/WebRTC), the Python voice-orchestration
 service (Pipecat), the native mobile apps, and photorealistic avatars. The
 provider interfaces and the WS control channel are the seams they plug into.
-# aispeakpro
-# aispeakpro
-# aispeakpro
-# aispeakpro
-# aispeakpro

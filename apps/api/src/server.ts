@@ -5,7 +5,7 @@ import { closeDb } from "./db/index.js";
 
 async function main() {
   const app = await buildApp();
-  await app.listen({ port: env.API_PORT, host: "0.0.0.0" });
+  await app.listen({ port: env.API_PORT, host: "127.0.0.1" });
   logger.info(`API listening on :${env.API_PORT}`);
 
   const shutdown = async (signal: string) => {

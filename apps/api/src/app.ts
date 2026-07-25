@@ -15,6 +15,8 @@ import { userRoutes } from "./modules/users.routes.js";
 import { scenarioRoutes } from "./modules/scenarios.routes.js";
 import { sessionRoutes } from "./modules/sessions.routes.js";
 import { vocabRoutes } from "./modules/vocab.routes.js";
+import { onboardingRoutes } from "./modules/onboarding.routes.js";
+import { courseRoutes } from "./modules/courses.routes.js";
 import { realtimeRoutes } from "./realtime/ws.js";
 
 export async function buildApp(): Promise<FastifyInstance> {
@@ -73,6 +75,8 @@ export async function buildApp(): Promise<FastifyInstance> {
       await v1.register(scenarioRoutes);
       await v1.register(sessionRoutes);
       await v1.register(vocabRoutes);
+      await v1.register(onboardingRoutes);
+      await v1.register(courseRoutes);
       await v1.register(realtimeRoutes);
     },
     { prefix: "/v1" },

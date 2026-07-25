@@ -1,4 +1,6 @@
 import type {
+  CourseProgress,
+  OnboardingInput,
   Profile,
   Scenario,
   Session,
@@ -46,11 +48,19 @@ export const api = {
       body: JSON.stringify({ email, password }),
     }, false),
   me: () => req<Profile>("/v1/me"),
+  onboard: (input: OnboardingInput) =>
+    req<{ profile: Profile; progress: CourseProgress | null }>("/v1/onboarding", {
+      method: "POST",
+      body: JSON.stringify(input),
+    }),
+  myCourse: () => req<{ progress: CourseProgress | null }>("/v1/me/course"),
+  completeLesson: () =>
+    req<{ progress: CourseProgress | null }>("/v1/me/course/complete", { method: "POST" }),
   scenarios: () => req<Scenario[]>("/v1/scenarios"),
-  startSession: (mode: "tutor" | "scene", scenarioSlug?: string) =>
+  startSession: (opts: { mode: "tutor" | "scene"; scenarioSlug?: string; lessonFocus?: string }) =>
     req<Session>("/v1/sessions", {
       method: "POST",
-      body: JSON.stringify({ mode, scenarioSlug }),
+      body: JSON.stringify(opts),
     }),
   submitTurn: (sessionId: string, text: string) =>
     req<{ agentTurn: Turn }>(`/v1/sessions/${sessionId}/turns`, {

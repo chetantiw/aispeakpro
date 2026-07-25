@@ -76,6 +76,85 @@ const scenarios = [
   },
 ] as const;
 
+const courses = [
+  {
+    slug: "everyday-english",
+    title: "Everyday English",
+    description: "Build confidence for daily conversations.",
+    goal: "daily",
+    level: "A2",
+    lessons: [
+      { title: "Introduce yourself", kind: "tutor", focus: "introducing yourself: name, work, hobbies" },
+      { title: "Order at a café", kind: "scene", scenarioSlug: "cafe-ordering" },
+      { title: "Talk about your day", kind: "tutor", focus: "describing your daily routine in the past tense" },
+      { title: "Describe your family", kind: "tutor", focus: "describing your family and relationships" },
+    ],
+  },
+  {
+    slug: "workplace-english",
+    title: "English for Work",
+    description: "Communicate clearly in an office.",
+    goal: "work",
+    level: "B1",
+    lessons: [
+      { title: "Daily standup", kind: "scene", scenarioSlug: "office-standup" },
+      { title: "Talk about your job", kind: "tutor", focus: "describing your job role and responsibilities" },
+      { title: "Debate: remote work", kind: "scene", scenarioSlug: "remote-work-debate" },
+      { title: "Give a status update", kind: "tutor", focus: "giving a short project status update including a blocker" },
+    ],
+  },
+  {
+    slug: "interview-prep",
+    title: "Job Interview Prep",
+    description: "Practise the most common interview questions.",
+    goal: "interview",
+    level: "B1",
+    lessons: [
+      { title: "Tell me about yourself", kind: "tutor", focus: "answering 'tell me about yourself' concisely" },
+      { title: "Strengths and weaknesses", kind: "tutor", focus: "discussing your strengths and weaknesses" },
+      { title: "Why this job?", kind: "tutor", focus: "explaining why you want the role and the company" },
+      { title: "Questions for the interviewer", kind: "tutor", focus: "asking thoughtful questions to an interviewer" },
+    ],
+  },
+  {
+    slug: "travel-english",
+    title: "English for Travel",
+    description: "Handle common travel situations with ease.",
+    goal: "travel",
+    level: "A2",
+    lessons: [
+      { title: "Order at a café", kind: "scene", scenarioSlug: "cafe-ordering" },
+      { title: "Ask for directions", kind: "tutor", focus: "asking for and understanding directions" },
+      { title: "At the hotel", kind: "tutor", focus: "checking in and asking about hotel facilities" },
+      { title: "At the airport", kind: "tutor", focus: "airport check-in, security and boarding" },
+    ],
+  },
+  {
+    slug: "ielts-speaking",
+    title: "IELTS Speaking",
+    description: "Practise the three IELTS speaking parts.",
+    goal: "exam",
+    level: "B2",
+    lessons: [
+      { title: "Part 1: Familiar topics", kind: "tutor", focus: "IELTS Speaking Part 1: short answers about familiar topics" },
+      { title: "Part 2: Long turn", kind: "tutor", focus: "IELTS Speaking Part 2: speaking for two minutes on a cue card" },
+      { title: "Part 3: Discussion", kind: "tutor", focus: "IELTS Speaking Part 3: abstract discussion questions" },
+    ],
+  },
+  {
+    slug: "academic-english",
+    title: "Academic English",
+    description: "English for school and college.",
+    goal: "academic",
+    level: "B1",
+    lessons: [
+      { title: "Introduce your studies", kind: "tutor", focus: "talking about your studies and subjects" },
+      { title: "Give a short presentation", kind: "tutor", focus: "presenting a topic to a class for two minutes" },
+      { title: "Group discussion", kind: "scene", scenarioSlug: "remote-work-debate" },
+    ],
+  },
+] as const;
+
 async function main() {
   for (const s of scenarios) {
     await db
@@ -94,7 +173,23 @@ async function main() {
       .onConflict((oc) => oc.column("slug").doNothing())
       .execute();
   }
-  logger.info(`seeded ${scenarios.length} scenarios`);
+
+  for (const c of courses) {
+    await db
+      .insertInto("courses")
+      .values({
+        slug: c.slug,
+        title: c.title,
+        description: c.description,
+        goal: c.goal,
+        level: c.level,
+        lessons: JSON.stringify(c.lessons),
+      })
+      .onConflict((oc) => oc.column("slug").doNothing())
+      .execute();
+  }
+
+  logger.info(`seeded ${scenarios.length} scenarios, ${courses.length} courses`);
   await closeDb();
 }
 

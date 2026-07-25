@@ -36,7 +36,32 @@ export interface LearnerProfilesTable {
   goals: ColumnType<string[], string | undefined, string>;
   minutes_used_today: Generated<number>;
   minutes_reset_at: ColumnType<Date, Date | string | undefined, Date | string>;
+  learning_goal: ColumnType<string | null, string | null | undefined, string | null>;
+  daily_goal_minutes: Generated<number>;
+  onboarded: Generated<boolean>;
   created_at: Generated<Date>;
+  updated_at: Generated<Date>;
+}
+
+export interface CoursesTable {
+  id: Generated<string>;
+  slug: string;
+  title: string;
+  description: Generated<string>;
+  goal: string;
+  level: Generated<string>;
+  lessons: ColumnType<unknown, string, string>;
+  is_active: Generated<boolean>;
+  created_at: Generated<Date>;
+}
+
+export interface CourseEnrollmentsTable {
+  id: Generated<string>;
+  user_id: string;
+  course_id: string;
+  current_index: Generated<number>;
+  completed: ColumnType<unknown, string | undefined, string>;
+  enrolled_at: Generated<Date>;
   updated_at: Generated<Date>;
 }
 
@@ -90,6 +115,7 @@ export interface SessionsTable {
   started_at: Generated<Date>;
   ended_at: ColumnType<Date | null, Date | string | null | undefined, Date | string | null>;
   duration_seconds: Generated<number>;
+  lesson_focus: ColumnType<string | null, string | null | undefined, string | null>;
   created_at: Generated<Date>;
 }
 
@@ -125,4 +151,6 @@ export interface Database {
   sessions: SessionsTable;
   turns: TurnsTable;
   session_feedback: SessionFeedbackTable;
+  courses: CoursesTable;
+  course_enrollments: CourseEnrollmentsTable;
 }

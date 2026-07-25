@@ -73,8 +73,68 @@ export const profileSchema = z.object({
   goals: z.array(z.string()).default([]),
   minutesUsedToday: z.number().int().nonnegative(),
   freeDailyMinutes: z.number().int().positive(),
+  onboarded: z.boolean(),
+  learningGoal: z.string().nullable(),
+  dailyGoalMinutes: z.number().int().positive(),
 });
 export type Profile = z.infer<typeof profileSchema>;
+
+// ---------------------------------------------------------------------------
+// Onboarding
+// ---------------------------------------------------------------------------
+
+export const learningGoalSchema = z.enum([
+  "work",
+  "interview",
+  "travel",
+  "exam",
+  "academic",
+  "daily",
+]);
+export type LearningGoal = z.infer<typeof learningGoalSchema>;
+
+export const selfLevelSchema = z.enum(["beginner", "intermediate", "advanced"]);
+export type SelfLevel = z.infer<typeof selfLevelSchema>;
+
+export const onboardingSchema = z.object({
+  goal: learningGoalSchema,
+  selfLevel: selfLevelSchema,
+  dailyGoalMinutes: z.number().int().min(5).max(120),
+  nativeLanguage: z.string().min(2).max(40).optional(),
+});
+export type OnboardingInput = z.infer<typeof onboardingSchema>;
+
+// ---------------------------------------------------------------------------
+// Courses & progress
+// ---------------------------------------------------------------------------
+
+export const lessonSchema = z.object({
+  title: z.string(),
+  kind: z.enum(["tutor", "scene"]),
+  scenarioSlug: z.string().nullable().optional(),
+  focus: z.string().nullable().optional(),
+});
+export type Lesson = z.infer<typeof lessonSchema>;
+
+export const courseSchema = z.object({
+  id: z.string().uuid(),
+  slug: z.string(),
+  title: z.string(),
+  description: z.string(),
+  goal: learningGoalSchema,
+  level: cefrSchema,
+  lessons: z.array(lessonSchema),
+});
+export type Course = z.infer<typeof courseSchema>;
+
+export const courseProgressSchema = z.object({
+  course: courseSchema,
+  currentIndex: z.number().int(),
+  completed: z.array(z.number().int()),
+  totalLessons: z.number().int(),
+  completedCount: z.number().int(),
+});
+export type CourseProgress = z.infer<typeof courseProgressSchema>;
 
 export const updateProfileSchema = z.object({
   nativeLanguage: z.string().min(2).max(40).optional(),
@@ -115,6 +175,8 @@ export type Scenario = z.infer<typeof scenarioSchema>;
 export const createSessionSchema = z.object({
   mode: sessionModeSchema,
   scenarioSlug: z.string().optional(),
+  /** Optional focus topic for a tutor lesson (pins the conversation). */
+  lessonFocus: z.string().max(200).optional(),
 });
 export type CreateSessionInput = z.infer<typeof createSessionSchema>;
 

@@ -26,3 +26,19 @@ button:disabled { opacity:.5; cursor:not-allowed; }
 .composer input { flex:1; }
 .mic { font-size:1.1rem; }
 .feedback pre { white-space:pre-wrap; font-size:.8rem; background:#0d1024; padding:.75rem; border-radius:10px; overflow:auto; max-height:40vh; }
+.card.wide { width:min(560px,94vw); }
+.q { font-weight:600; margin-top:.75rem; font-size:.95rem; }
+.opts { display:flex; flex-wrap:wrap; gap:.5rem; }
+.opt { background:#0d1024; border:1px solid #2f3557; }
+.opt.sel { background:var(--accent); border-color:var(--accent); }
+.progressbar { height:10px; background:#0d1024; border-radius:99px; overflow:hidden; margin:.5rem 0; }
+.progressbar .fill { height:100%; background:var(--accent); transition:width .3s; }
+.lessons { display:flex; flex-direction:column; gap:.5rem; margin-top:.75rem; }
+.lesson { display:flex; align-items:center; gap:.75rem; background:var(--card); padding:.75rem; border-radius:12px; border:1px solid transparent; }
+.lesson.current { border-color:var(--accent); }
+.lnum { width:28px; height:28px; border-radius:99px; background:#0d1024; display:grid; place-items:center; font-weight:700; flex:none; }
+.lesson.current .lnum { background:var(--accent); }
+.lbody { flex:1; }
+.ltitle { font-weight:600; }
+.small { font-size:.75rem; }
+.lactions { display:flex; gap:.4rem; }

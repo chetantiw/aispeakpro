@@ -129,3 +129,37 @@ CREATE TABLE IF NOT EXISTS session_feedback (
   focus_areas   JSONB NOT NULL DEFAULT '[]'::jsonb,
   created_at    TIMESTAMPTZ NOT NULL DEFAULT now()
 );
+
+-- ---------------------------------------------------------------------------
+-- Onboarding + courses + progress (added after v1)
+-- ---------------------------------------------------------------------------
+ALTER TABLE learner_profiles ADD COLUMN IF NOT EXISTS learning_goal      TEXT;
+ALTER TABLE learner_profiles ADD COLUMN IF NOT EXISTS daily_goal_minutes INTEGER NOT NULL DEFAULT 15;
+ALTER TABLE learner_profiles ADD COLUMN IF NOT EXISTS onboarded          BOOLEAN NOT NULL DEFAULT false;
+
+-- A tutor lesson can pin the conversation to a focus topic.
+ALTER TABLE sessions ADD COLUMN IF NOT EXISTS lesson_focus TEXT;
+
+CREATE TABLE IF NOT EXISTS courses (
+  id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  slug        TEXT UNIQUE NOT NULL,
+  title       TEXT NOT NULL,
+  description TEXT NOT NULL DEFAULT '',
+  goal        TEXT NOT NULL,                 -- matches the learner's stated motive
+  level       TEXT NOT NULL DEFAULT 'A2',
+  lessons     JSONB NOT NULL DEFAULT '[]'::jsonb,
+  is_active   BOOLEAN NOT NULL DEFAULT true,
+  created_at  TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+CREATE INDEX IF NOT EXISTS idx_courses_goal ON courses(goal) WHERE is_active;
+
+CREATE TABLE IF NOT EXISTS course_enrollments (
+  id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id       UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  course_id     UUID NOT NULL REFERENCES courses(id) ON DELETE CASCADE,
+  current_index INTEGER NOT NULL DEFAULT 0,
+  completed     JSONB NOT NULL DEFAULT '[]'::jsonb,  -- array of completed lesson indexes
+  enrolled_at   TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at    TIMESTAMPTZ NOT NULL DEFAULT now(),
+  UNIQUE (user_id)                                   -- one active course per learner (MVP)
+);

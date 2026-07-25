@@ -1,13 +1,15 @@
 import type {
   CreateSessionInput,
+  Persona,
   PronunciationScore,
+  Scenario,
   Session,
   Turn,
 } from "@aispeakpro/shared";
 import { db } from "../db/index.js";
 import { Errors } from "../http/errors.js";
 import { getLLM } from "../providers/index.js";
-import { buildTutorSystemPrompt } from "../pedagogy/promptBuilder.js";
+import { buildSceneSystemPrompt, buildTutorSystemPrompt } from "../pedagogy/promptBuilder.js";
 import type { ChatMessage } from "../providers/types.js";
 import { getLearnerContext } from "./profile.service.js";
 import { enqueueFeedback } from "../queue.js";
@@ -76,7 +78,13 @@ export async function startSession(
 
   const row = await db
     .insertInto("sessions")
-    .values({ user_id: userId, scenario_id: scenarioId, mode: input.mode, status: "active" })
+    .values({
+      user_id: userId,
+      scenario_id: scenarioId,
+      mode: input.mode,
+      status: "active",
+      lesson_focus: input.lessonFocus ?? null,
+    })
     .returningAll()
     .executeTakeFirstOrThrow();
 
@@ -101,6 +109,27 @@ async function nextSeq(sessionId: string): Promise<number> {
     .where("session_id", "=", sessionId)
     .executeTakeFirst();
   return (Number(row?.m ?? -1)) + 1;
+}
+
+async function loadScenario(scenarioId: string): Promise<Scenario | null> {
+  const row = await db
+    .selectFrom("scenarios")
+    .selectAll()
+    .where("id", "=", scenarioId)
+    .executeTakeFirst();
+  if (!row) return null;
+  return {
+    id: row.id,
+    slug: row.slug,
+    title: row.title,
+    description: row.description,
+    mode: row.mode as Scenario["mode"],
+    difficulty: row.difficulty as Scenario["difficulty"],
+    setting: row.setting,
+    objective: row.objective,
+    personas: (row.personas as Persona[]) ?? [],
+    beats: (row.beats as string[]) ?? [],
+  };
 }
 
 async function recentTurns(sessionId: string): Promise<ChatMessage[]> {
@@ -130,7 +159,7 @@ export async function submitLearnerTurn(
   text: string,
   pronunciation?: PronunciationScore,
 ): Promise<{ learnerTurn: Turn; agentTurn: Turn }> {
-  await loadOwnedActiveSession(userId, sessionId);
+  const session = await loadOwnedActiveSession(userId, sessionId);
 
   const seq = await nextSeq(sessionId);
   const learnerRow = await db
@@ -146,9 +175,17 @@ export async function submitLearnerTurn(
     .executeTakeFirstOrThrow();
 
   const ctx = await getLearnerContext(userId);
+
+  // Scene sessions stay pinned to their scenario; free sessions use the tutor.
+  let systemPrompt = buildTutorSystemPrompt(ctx, session.lesson_focus ?? undefined);
+  if (session.scenario_id) {
+    const scenario = await loadScenario(session.scenario_id);
+    if (scenario) systemPrompt = buildSceneSystemPrompt(scenario, ctx);
+  }
+
   const history = await recentTurns(sessionId);
   const messages: ChatMessage[] = [
-    { role: "system", content: buildTutorSystemPrompt(ctx) },
+    { role: "system", content: systemPrompt },
     ...history,
   ];
 
