@@ -1,0 +1,17 @@
+{
+  "name": "aispeakpro",
+  "private": true,
+  "version": "0.1.0",
+  "description": "AISpeakPro — AI-powered spoken-English tutor. Production MVP monorepo.",
+  "packageManager": "pnpm@9.0.0",
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "build": "pnpm -r build",
+    "typecheck": "pnpm -r typecheck",
+    "test": "pnpm -r test",
+    "dev:api": "pnpm --filter @aispeakpro/api dev",
+    "dev:web": "pnpm --filter @aispeakpro/web dev",
+    "db:migrate": "pnpm --filter @aispeakpro/api db:migrate",
+    "db:seed": "pnpm --filter @aispeakpro/api db:seed"
+  }
+}
